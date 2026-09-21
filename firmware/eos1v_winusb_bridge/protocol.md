@@ -97,4 +97,3 @@ Request payload is empty. The RA4 immediately disables both line drivers,
 clears the high-assist state and drains the camera UART receive buffer.
 
 Successful response payload is one byte: `00`.
-
