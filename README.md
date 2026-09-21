@@ -54,7 +54,7 @@ Install the Arduino Renesas core, then compile:
 
 ```powershell
 arduino-cli core install arduino:renesas_uno
-arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi firmware/eos1v_interface
+arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi tests/hardware/eos1v_interface
 ```
 
 Open the serial monitor at 115200 baud after upload. Put the camera into PC mode before starting a protocol command. A successful `F2` exit deliberately returns the camera to normal metering mode, so PC mode must be re-entered before the next independent command.
@@ -62,13 +62,18 @@ Open the serial monitor at 115200 baud after upload. Put the camera into PC mode
 ## Repository layout
 
 ```text
-firmware/eos1v_interface/  Verified research console firmware
+firmware/eos1v_winusb_bridge/  USB-to-camera bridge firmware
+tests/hardware/eos1v_interface/  Archived diagnostic firmware
 experiments/               Earlier electrical and UART probe sketches
 tools/                     Capture and offline UART decoding tools
 docs/                      Wiring, protocol, and validation notes
 ```
 
 The sketches under `experiments/` document the development path. They are not the recommended camera interface.
+
+> **ESP32-S3 status:** `firmware/eos1v_winusb_bridge/esp32s3_winusb_bridge`
+> is an unusable experimental draft. A successful compile does not make it safe
+> or functional on an UNO R4 WiFi. Do not flash it to the board.
 
 ## Safety model
 
@@ -83,6 +88,7 @@ Always keep an independent backup of film records before testing write or delete
 
 ## Documentation
 
+- [Consolidated communication behavior manual (Chinese)](docs/communication-manual.zh-CN.md)
 - [Wiring](docs/wiring.zh-CN.md)
 - [Hardware validation](docs/hardware-validation.zh-CN.md)
 - [Active interface validation](docs/active-interface-validation.zh-CN.md)

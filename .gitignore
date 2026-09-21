@@ -23,3 +23,6 @@ Thumbs.db
 
 # Local Arduino CLI state
 arduino-cli.yaml
+
+# ESP32-S3 companion firmware output
+firmware/eos1v_winusb_bridge/**/build/
