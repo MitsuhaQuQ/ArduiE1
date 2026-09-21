@@ -1,0 +1,25 @@
+# Arduino output
+build/
+*.elf
+*.hex
+*.bin
+*.map
+
+# Captures and generated tables
+captures/
+*.pcap
+*.pcapng
+*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local Arduino CLI state
+arduino-cli.yaml
