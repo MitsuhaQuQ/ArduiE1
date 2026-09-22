@@ -36,7 +36,9 @@ try {
     if ($pinsPatched -eq $original[$pins]) { throw "Minima VID/PID definitions not found" }
 
     $tusbPatched = $original[$tusb]
-    $tusbPatched = [regex]::Replace($tusbPatched, '#define CFG_TUD_ENDPOINT0_SIZE\s+64', '#define CFG_TUD_ENDPOINT0_SIZE    8')
+    # The original ES-E1 advertises an 8-byte endpoint zero. The RA4M1
+    # TinyUSB/RUSB2 path fails configuration-descriptor enumeration at that
+    # size, so the Minima-compatible image keeps the core's 64-byte EP0.
     # Keep the CDC class compiled because the Arduino core always builds
     # SerialUSB.cpp. It is deliberately omitted from the USB descriptors.
     $tusbPatched = $tusbPatched.Replace('#define CFG_TUD_HID              1', '#define CFG_TUD_HID              0')

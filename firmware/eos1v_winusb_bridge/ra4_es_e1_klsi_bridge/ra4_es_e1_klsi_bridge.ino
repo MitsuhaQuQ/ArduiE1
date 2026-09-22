@@ -148,7 +148,7 @@ void pollCameraIn() {
 extern "C" bool tud_vendor_control_xfer_cb(
     uint8_t rhport, uint8_t stage, tusb_control_request_t const* request) {
   if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR ||
-      request->bmRequestType_bit.recipient != TUSB_REQ_RCPT_DEVICE ||
+      request->bmRequestType_bit.recipient != TUSB_REQ_RCPT_INTERFACE ||
       request->bmRequestType_bit.direction != TUSB_DIR_OUT) {
     return false;
   }

@@ -6,7 +6,7 @@ This repository deliberately keeps three firmware paths:
 |---|---|---|---|
 | `ra4_camera_bridge` | Arduino UNO R4 (`2341:0069` on Minima) | CDC ACM carrying O1 frames | Stable and hardware verified |
 | `ra4_es_e1_id_bridge` | Canon ES-E1 test identity (`04A9:3040`) | CDC ACM carrying the same O1 frames | Experimental; camera communication verified through open1V |
-| `ra4_es_e1_klsi_bridge` | Canon ES-E1 identity (`04A9:3040`) | Original 64-byte KLSI/MCCI-style vendor protocol | Experimental; compiles, hardware test pending |
+| `ra4_es_e1_klsi_bridge` | Canon ES-E1 identity (`04A9:3040`) | Original 64-byte KLSI/MCCI-style vendor protocol | Experimental; transport hardware verified |
 
 The `ra4_es_e1_id_bridge` image changes only the USB identity and strings. It does not
 implement the original ES-E1 KLSI/MCCI USB transport and therefore is not a
@@ -81,7 +81,7 @@ ES-E1 captures and the host backend:
 - one vendor-class interface with bulk OUT `0x02` and bulk IN `0x81`;
 - fixed 64-byte blocks containing a two-byte little-endian payload length and
   at most 62 payload bytes;
-- host-to-device vendor request `1`, value `0`, carrying the five-byte serial
+- host-to-interface vendor request `1`, value `0`, carrying the five-byte serial
   configuration;
 - vendor request `3`, value `3` to enable the read channel and value `2` to
   disable it;
@@ -95,11 +95,32 @@ Build it with:
 ```
 
 The script temporarily changes the installed Minima core to emit the recovered
-USB 1.00 vendor descriptors (`bcdDevice 1.03`, endpoint-zero size 8), then
-restores every modified core file in `finally`. This image has no CDC COM port;
+USB 1.00 vendor descriptors (`bcdDevice 1.03`), then restores every modified
+core file in `finally`. The original cable reports an 8-byte endpoint zero;
+the Minima image keeps the RA4 core's 64-byte endpoint zero because its RUSB2
+path failed configuration-descriptor enumeration at 8 bytes. This image has no CDC COM port;
 returning to stable firmware requires entering the Minima DFU bootloader by
 pressing RESET twice.
 
-The build passes with Arduino Renesas core 1.6.0. Enumeration, control requests,
-bulk framing, and an end-to-end original-application session still require
-hardware validation.
+The build passes with Arduino Renesas core 1.6.0.
+
+## Original-transport hardware result (2026-09-22)
+
+The image enumerated successfully through the existing Zadig WinUSB binding as
+interface `FF/00/00`, bulk OUT `0x02`, bulk IN `0x81`, with 64-byte packets.
+The standalone original-transport probe then completed:
+
+```text
+request 1 (5 bytes) x3 -> OK
+request 3, value 3     -> OK
+FF -> F4, F4 echo      -> OK
+F6 -> 17-byte response -> checksum OK
+F1 -> 01 40 34 75      -> checksum OK (camera ID 64)
+F2 -> F2               -> clean exit
+request 3, value 2     -> OK
+```
+
+The first enumeration attempt used the original cable's 8-byte EP0 and failed
+at the configuration descriptor. Keeping the RA4 core's 64-byte EP0 resolved
+it. The original vendor requests and bulk framing are otherwise preserved.
+The next validation layer is a full session through the patched Canon program.
