@@ -1,11 +1,12 @@
-# EOS-1V UNO R4 WiFi WinUSB bridge
+# EOS-1V UNO R4 camera bridge
 
-> **CURRENT STATUS: UNUSABLE EXPERIMENTAL DRAFT.** The ESP32-S3 firmware has
-> only passed a compiler check. It has not produced a usable UNO R4 WiFi
-> bridge, and it must not be flashed based on this repository state. The
-> descriptions below document the intended architecture, not working firmware.
+> **ESP32-S3 STATUS: UNUSABLE EXPERIMENTAL DRAFT.** This warning applies only
+> to `esp32s3_winusb_bridge/`. The RA4 camera bridge in
+> `ra4_camera_bridge/ra4_camera_bridge.ino` is the working USB-CDC/UART bridge
+> and is the firmware to compile for UNO R4 WiFi or UNO R4 Minima.
 
-This is a two-processor prototype for the Arduino UNO R4 WiFi:
+This contains the validated RA4 camera bridge for Arduino UNO R4 WiFi and UNO
+R4 Minima. The WiFi USB bridge prototype is separate:
 
 - `ra4_camera_bridge/` runs on the RA4M1 and owns the timing-critical camera
   line driver.
@@ -20,10 +21,12 @@ camera protocol state machine and both the CLI and GUI can share it.
 
 ## Important hardware fact
 
-The UNO R4 WiFi USB-C connector is handled by the on-board ESP32-S3 bridge.
-The normal RA4M1 board definition is compiled with `NO_USB`, so an RA4M1
-sketch alone cannot add a WinUSB interface. The ESP32-S3 companion firmware is
-therefore required.
+On UNO R4 Minima, the RA4M1 USB CDC port is the host-side USB-UART endpoint,
+so `ra4_camera_bridge.ino` is self-contained. On UNO R4 WiFi, the USB-C port
+is handled by the on-board ESP32-S3 bridge; the RA4 sketch still owns the
+camera UART and must use the normal WiFi board path. A custom WinUSB interface
+on WiFi would require replacing the ESP32-S3 firmware, which is the separate
+experimental path documented below.
 
 ## Warning before flashing
 
@@ -46,7 +49,8 @@ camera-side DATA-A/DATA-B wiring first.
 
 ### RA4M1
 
-- Board: Arduino UNO R4 WiFi
+- Board: Arduino UNO R4 WiFi (`arduino:renesas_uno:unor4wifi`) or UNO R4 Minima
+  (`arduino:renesas_uno:minima`)
 - Sketch: `ra4_camera_bridge/ra4_camera_bridge.ino`
 - Internal link: `Serial` at 115200 baud
 - Camera receive: `Serial1` at 9600 baud
@@ -96,6 +100,7 @@ With the required cores already installed:
 ```powershell
 arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi `
   firmware/eos1v_winusb_bridge/ra4_camera_bridge
+# For UNO R4 Minima use: arduino:renesas_uno:minima
 
 arduino-cli compile `
   --fqbn "esp32:esp32:esp32s3:USBMode=default,CDCOnBoot=default,MSCOnBoot=default,DFUOnBoot=default,UploadMode=default,FlashSize=4M,PartitionScheme=default,PSRAM=disabled" `

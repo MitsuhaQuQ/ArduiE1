@@ -1,6 +1,6 @@
 # EOS-1V UNO R4 Serial Interface
 
-An open, independently implemented Arduino UNO R4 WiFi interface for the Canon EOS-1V service/data channel exposed through the N3 three-pin remote connector.
+An open, independently implemented Arduino UNO R4 interface for the Canon EOS-1V service/data channel exposed through the N3 three-pin remote connector.
 
 The project currently provides a verified electrical interface, session handshake, settings reads, C.Fn/P.Fn reads and selected writes, clock read/write, shooting-data configuration, film-record download, and an explicitly armed delete operation. It does not contain Canon executables, drivers, firmware, manuals, or copied source code.
 
@@ -24,7 +24,11 @@ The main firmware remains a protocol research console. Commands that write camer
 
 ## Hardware
 
-Target board: **Arduino UNO R4 WiFi**.
+Target boards: **Arduino UNO R4 WiFi** and **Arduino UNO R4 Minima**.
+
+The same RA4 camera-bridge sketch is used on both boards. Select the matching
+Arduino CLI FQBN when compiling: `arduino:renesas_uno:unor4wifi` or
+`arduino:renesas_uno:minima`.
 
 The tested interface uses two isolated transmit paths because the camera-side pull-up can disappear during a long low pulse:
 
@@ -73,7 +77,8 @@ Install the Arduino Renesas core, then compile:
 
 ```powershell
 arduino-cli core install arduino:renesas_uno
-arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi tests/hardware/eos1v_interface
+arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi firmware/eos1v_winusb_bridge/ra4_camera_bridge
+# For UNO R4 Minima, use: arduino:renesas_uno:minima
 ```
 
 Open the serial monitor at 115200 baud after upload. Put the camera into PC mode before starting a protocol command. A successful `F2` exit deliberately returns the camera to normal metering mode, so PC mode must be re-entered before the next independent command.
@@ -82,6 +87,7 @@ Open the serial monitor at 115200 baud after upload. Put the camera into PC mode
 
 ```text
 firmware/eos1v_winusb_bridge/  USB-to-camera bridge firmware
+  ra4_camera_bridge/            Final USB-CDC/UART camera bridge sketch
 tests/hardware/eos1v_interface/  Archived diagnostic firmware
 experiments/               Earlier electrical and UART probe sketches
 tools/                     Capture and offline UART decoding tools

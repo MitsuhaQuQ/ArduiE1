@@ -1,7 +1,9 @@
 # EOS-1V Hardware Validation
 
-Validated platform: Canon EOS-1V, Canon ES-E1, Arduino UNO R4 WiFi, N3 remote
-connector.
+Validated platform: Canon EOS-1V, Canon ES-E1, Arduino UNO R4 WiFi, UNO R4
+Minima, and the N3 remote connector. The full historical capture baseline was
+recorded with UNO R4 WiFi; Minima was later verified with the same final
+`ra4_camera_bridge.ino` compiled as `arduino:renesas_uno:minima`.
 
 ## Confirmed electrical mapping
 
@@ -59,4 +61,3 @@ shooting status, multi-roll E3/E4 download, and both F2 exit forms were also
 validated. The final breadboard is suitable for protocol development; scope
 measurements, ESD protection, PCB layout, and tolerance testing remain future
 hardware work.
-

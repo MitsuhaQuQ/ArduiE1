@@ -13,6 +13,12 @@ EXIT RX1 (1/1): F2
 The camera accepted both `F2 -> F2` and the original application's two-stage
 `F2 -> F4`, host `F4`, delay, `F2 -> F2` exit.
 
+The same `ra4_camera_bridge.ino` was subsequently compiled for
+`arduino:renesas_uno:minima` and flashed to an UNO R4 Minima. USB-CDC host
+communication and the EOS-1V bridge exchange then completed normally. The
+WiFi and Minima builds use the same RA4 camera-side transport; only the board
+FQBN and USB hardware path differ.
+
 ## Read coverage
 
 The active firmware completed `E8`, `FC`, `E1`, all four C.Fn blocks, all 16
@@ -32,4 +38,3 @@ all-end packet.
 
 The line-bit captures were `FF: 0111111111`, `F4: 0001011111`, and
 `F6: 0011011111` (start, data bits, stop).
-

@@ -1,18 +1,19 @@
 # EOS-1V UNO R4 串行接口
 
-这是一个使用 Arduino UNO R4 WiFi 与 EOS-1V N3 三针接口通信的独立实现。目前包含已经过实机验证的双驱动硬件、会话握手、设置读取、C.Fn/P.Fn、时间、相机 ID、拍摄字段设置和胶卷记录下载流程。
+这是一个使用 Arduino UNO R4 WiFi 或 UNO R4 Minima 与 EOS-1V N3 三针接口通信的独立实现。目前包含已经过实机验证的双驱动硬件、会话握手、设置读取、C.Fn/P.Fn、时间、相机 ID、拍摄字段设置和胶卷记录下载流程。
 
-主入口是：
+最终 USB-UART 桥接固件是：
 
 ```text
-tests/hardware/eos1v_interface/eos1v_interface.ino
+firmware/eos1v_winusb_bridge/ra4_camera_bridge/ra4_camera_bridge.ino
 ```
 
 编译命令：
 
 ```powershell
 arduino-cli core install arduino:renesas_uno
-arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi tests/hardware/eos1v_interface
+arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi firmware/eos1v_winusb_bridge/ra4_camera_bridge
+# UNO R4 Minima 改用：arduino:renesas_uno:minima
 ```
 
 使用前必须阅读 [接线说明](docs/wiring.zh-CN.md)。每次实际通信前都要确认相机已经进入 PC 模式；成功发送 `F2` 退出后，相机会回到普通测光状态，下一次独立操作前必须重新进入 PC 模式。
