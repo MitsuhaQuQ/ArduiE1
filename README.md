@@ -24,7 +24,10 @@ The main firmware remains a protocol research console. Commands that write camer
 
 ## Hardware
 
-Target boards: **Arduino UNO R4 WiFi** and **Arduino UNO R4 Minima**.
+The recommended board is **Arduino UNO R4 Minima**. **UNO R4 WiFi** remains
+supported for the stable CDC/O1 bridge, but is not recommended for original
+ES-E1 device-identity or USB-transport emulation because USB-C is mediated by
+its on-board ESP32-S3. ESP32-S3 firmware is outside this project's scope.
 
 The same RA4 camera-bridge sketch is used on both boards. Select the matching
 Arduino CLI FQBN when compiling: `arduino:renesas_uno:unor4wifi` or
@@ -99,10 +102,6 @@ windows-compat/            Original Canon software compatibility bridge
 `windows-compat/` builds the clean-room `EOSHOOKX.dll` and local patcher. The DLL can use either this repository's UNO R4 bridge or the original ES-E1 cable; see [the transport-selection and build notes](windows-compat/SOURCE_PROJECT.md).
 
 The sketches under `experiments/` document the development path. They are not the recommended camera interface.
-
-> **ESP32-S3 status:** `firmware/eos1v_winusb_bridge/esp32s3_winusb_bridge`
-> is an unusable experimental draft. A successful compile does not make it safe
-> or functional on an UNO R4 WiFi. Do not flash it to the board.
 
 ## Safety model
 

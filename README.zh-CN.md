@@ -6,6 +6,10 @@
 `ra4_es_e1_id_bridge`（ES-E1 USB 身份）两套方案。后者仍使用 CDC/O1，详见
 [UNO R4 Minima ES-E1 USB 身份实验](docs/es-e1-usb-identity-test.zh-CN.md)。
 
+UNO R4 Minima 是当前推荐的开发板。UNO R4 WiFi 仍可用于已验证的 CDC/O1
+桥接，但不推荐用于模拟原版 ES-E1 的 USB 身份或传输，因为它的 USB-C
+由板载 ESP32-S3 中介。ESP32-S3 固件不再是本项目的开发目标。
+
 最终 USB-UART 桥接固件是：
 
 ```text
@@ -40,9 +44,6 @@ Canon N3 快门线的三条线路按电气功能定义如下：
 已验证的通信行为、会话规则、错误恢复和命令边界汇总在 [EOS-1V 通信行为手册](docs/communication-manual.zh-CN.md)。
 
 原版 Canon 软件通过 UNO R4 运行的实机结果、双后端选择及 Remote 常驻会话模型记录在 [Windows 原版软件兼容验证](docs/windows-canon-compat-validation.md)。
-
-> **ESP32-S3 状态：** `firmware/eos1v_winusb_bridge/esp32s3_winusb_bridge`
-> 当前是不可用的实验草案。编译成功不代表能在 UNO R4 WiFi 上工作或可以安全刷写，请勿刷入开发板。
 
 `experiments/` 中是早期电气和串口探针，只用于保存验证过程，不应替代主固件连接相机。
 

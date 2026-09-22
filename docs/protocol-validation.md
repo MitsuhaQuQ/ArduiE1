@@ -49,6 +49,5 @@ each high-level action.
 ## Remaining validation
 
 The meanings of A1, reserved D1/P.Fn bytes, some E4 flags, E2's physical erase
-scope, oscilloscope waveforms, PCB tolerances, and the ESP32-S3 USB bridge remain
-open. The ESP32-S3 draft is not usable and must not be flashed.
-
+scope, oscilloscope waveforms, and PCB tolerances remain open. USB identity and
+transport experiments target UNO R4 Minima; ESP32-S3 is outside project scope.
