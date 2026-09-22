@@ -96,10 +96,7 @@ tests/hardware/eos1v_interface/  Archived diagnostic firmware
 experiments/               Earlier electrical and UART probe sketches
 tools/                     Capture and offline UART decoding tools
 docs/                      Wiring, protocol, and validation notes
-windows-compat/            Original Canon software compatibility bridge
 ```
-
-`windows-compat/` builds the clean-room `EOSHOOKX.dll` and local patcher. The DLL can use either this repository's UNO R4 bridge or the original ES-E1 cable; see [the transport-selection and build notes](windows-compat/SOURCE_PROJECT.md).
 
 The sketches under `experiments/` document the development path. They are not the recommended camera interface.
 
@@ -117,7 +114,6 @@ Always keep an independent backup of film records before testing write or delete
 ## Documentation
 
 - [Communication behavior manual](docs/communication-manual.md)
-- [Original Canon application compatibility validation](docs/windows-canon-compat-validation.md)
 - [UNO R4 Minima ES-E1 USB identity test](docs/es-e1-usb-identity-test.md)
 - [Wiring](docs/wiring.md)
 - [Hardware validation](docs/hardware-validation.md)

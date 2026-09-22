@@ -43,8 +43,6 @@ Canon N3 快门线的三条线路按电气功能定义如下：
 
 已验证的通信行为、会话规则、错误恢复和命令边界汇总在 [EOS-1V 通信行为手册](docs/communication-manual.zh-CN.md)。
 
-原版 Canon 软件通过 UNO R4 运行的实机结果、双后端选择及 Remote 常驻会话模型记录在 [Windows 原版软件兼容验证](docs/windows-canon-compat-validation.md)。
-
 `experiments/` 中是早期电气和串口探针，只用于保存验证过程，不应替代主固件连接相机。
 
 本目录不包含 Canon 原程序、驱动、固件、手册或其他原始二进制文件。
