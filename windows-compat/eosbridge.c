@@ -391,10 +391,13 @@ static BOOL bridge_open(void){
        the same N3 camera. The two line drivers would contend electrically even
        though only one COM/USB backend is selected by the process. Explicit
        Backend=Arduino or Backend=ES-E1 remains deterministic. */
-    if(preference==BACKEND_NONE){
+    if(preference==BACKEND_NONE||preference==BACKEND_ARDUINO){
         arduino_present=arduino_port_name(arduino_port);
         eos_probe=open_eos_device();
-        if(arduino_present&&eos_probe!=INVALID_HANDLE_VALUE){
+        if(preference==BACKEND_ARDUINO&&eos_probe!=INVALID_HANDLE_VALUE){
+            CloseHandle(eos_probe);SetLastError(ERROR_BUSY);log_line("BACKEND_CONFLICT",0,0,0,0,FALSE,ERROR_BUSY);return FALSE;
+        }
+        if(preference==BACKEND_NONE&&arduino_present&&eos_probe!=INVALID_HANDLE_VALUE){
             CloseHandle(eos_probe);SetLastError(ERROR_BUSY);log_line("BACKEND_CONFLICT",0,0,0,0,FALSE,ERROR_BUSY);return FALSE;
         }
         if(eos_probe!=INVALID_HANDLE_VALUE)CloseHandle(eos_probe);

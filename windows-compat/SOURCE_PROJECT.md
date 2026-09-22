@@ -39,6 +39,13 @@ The other cable should also be disconnected from the camera while testing. The
 setting is read beside `EOSHOOKX.dll`, so it applies to the patched Canon
 process without changing the machine-wide COM or USB configuration.
 
+`Backend=Arduino` also refuses to open when an ES-E1 device is detected. The
+ES-E1 may still appear to work because its driver owns the N3 session first,
+while the Arduino controller then fails at the electrical/protocol boundary.
+This is intentional: both controllers must not be attached to the same camera
+N3 connector at once. Disconnect the ES-E1 cable from the camera before using
+the Arduino backend.
+
 The Canon driver issues a write and a later read, while an `O1` exchange carries the outgoing bytes and expected reply length together. For the Arduino backend, `EOSHOOKX.dll` therefore holds the latest write until the corresponding read. A following write flushes the older pending write as a zero-reply exchange. This preserves delays inserted by the original program between commands without hard-coding individual camera commands.
 
 ## Canon application session model
