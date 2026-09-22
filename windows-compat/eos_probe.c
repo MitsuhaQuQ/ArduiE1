@@ -39,8 +39,8 @@ static void close_session(WINUSB_INTERFACE_HANDLE usb){BYTE command=0xf2,data[8]
 
 int main(void){
     HANDLE device=INVALID_HANDLE_VALUE;WINUSB_INTERFACE_HANDLE usb=0;BYTE data[256],one;DWORD size=0;int result=1;
-    printf("EOS-1V WinUSB read-only probe\n");device=open_device();if(device==INVALID_HANDLE_VALUE){printf("EOS-1V WinUSB interface not found (error %lu).\n",GetLastError());return 2;}
-    if(!WinUsb_Initialize(device,&usb)){DWORD error=GetLastError();printf("WinUsb_Initialize failed: %lu\n",error);if(error==ERROR_INVALID_HANDLE)printf("The device is enumerated but is not bound to WinUSB. Select the EOS-1V interface in Device Manager and install EOS1V-WinUSB.inf, then reconnect it.\n");goto done;}print_pipes(usb);
+    printf("EOS-1V WinUSB read-only probe\n");device=open_device();if(device==INVALID_HANDLE_VALUE){printf("EOS-1V WinUSB interface not found. The device may still use the Canon driver; use Zadig to install Microsoft WinUSB for Canon EOS USB Cable / ES-E1, then reconnect it.\n");return 2;}
+    if(!WinUsb_Initialize(device,&usb)){DWORD error=GetLastError();printf("WinUsb_Initialize failed: %lu\n",error);if(error==ERROR_INVALID_HANDLE)printf("The device is enumerated but is not bound to WinUSB. In Zadig, select the Canon EOS USB Cable / ES-E1 device, choose Microsoft WinUSB, install or replace the driver, then reconnect it.\n");goto done;}print_pipes(usb);
     WinUsb_AbortPipe(usb,PIPE_IN);WinUsb_AbortPipe(usb,PIPE_OUT);WinUsb_ResetPipe(usb,PIPE_IN);WinUsb_ResetPipe(usb,PIPE_OUT);WinUsb_FlushPipe(usb,PIPE_IN);
     if(!config(usb,4,7)||!config(usb,6,7)||!control(usb,3,3,0,0)||!config(usb,6,8)){printf("USB initialization failed: %lu\n",GetLastError());goto done;}
     one=0xff;if(!write_payload(usb,&one,1)||!read_payload(usb,data,sizeof(data),&size,1500)||size!=1||(data[0]!=0xf4&&data[0]!=0x00)){printf("FF/F4 handshake failed.\n");goto done;}

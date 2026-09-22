@@ -96,9 +96,10 @@ or a WinUSB stack that rejects synchronous calls on an overlapped handle.
 
 If `eos_probe.exe` reports that the device is found but `WinUsb_Initialize`
 returns error 6 (`ERROR_INVALID_HANDLE`), the USB device is still using the
-Canon/vendor driver. The interface must be rebound to Microsoft's WinUSB driver
-using `EOS1V-WinUSB.inf` in Device Manager, followed by a physical reconnect.
-The DLL cannot turn a vendor-driver handle into a WinUSB handle in user mode.
+Canon/vendor driver. Use Zadig to select the `Canon EOS USB Cable` / ES-E1
+device, choose **Microsoft WinUSB**, install or replace the driver, and then
+physically reconnect the cable. The DLL cannot turn a vendor-driver handle into
+a WinUSB handle in user mode. This project does not ship or install an INF.
 
 ## Clean-distribution rule
 
