@@ -88,6 +88,7 @@ Open the serial monitor at 115200 baud after upload. Put the camera into PC mode
 ```text
 firmware/eos1v_winusb_bridge/  USB-to-camera bridge firmware
   ra4_camera_bridge/            Final USB-CDC/UART camera bridge sketch
+  ra4_es_e1_id_bridge/          Experimental Minima ES-E1-ID CDC build
 tests/hardware/eos1v_interface/  Archived diagnostic firmware
 experiments/               Earlier electrical and UART probe sketches
 tools/                     Capture and offline UART decoding tools
@@ -118,6 +119,7 @@ Always keep an independent backup of film records before testing write or delete
 
 - [Communication behavior manual](docs/communication-manual.md)
 - [Original Canon application compatibility validation](docs/windows-canon-compat-validation.md)
+- [UNO R4 Minima ES-E1 USB identity test](docs/es-e1-usb-identity-test.md)
 - [Wiring](docs/wiring.md)
 - [Hardware validation](docs/hardware-validation.md)
 - [Active interface validation](docs/active-interface-validation.md)

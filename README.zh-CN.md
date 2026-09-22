@@ -2,6 +2,10 @@
 
 这是一个使用 Arduino UNO R4 WiFi 或 UNO R4 Minima 与 EOS-1V N3 三针接口通信的独立实现。目前包含已经过实机验证的双驱动硬件、会话握手、设置读取、C.Fn/P.Fn、时间、相机 ID、拍摄字段设置和胶卷记录下载流程。
 
+项目同时保留稳定的 `ra4_camera_bridge`（Arduino USB 身份）和实验性
+`ra4_es_e1_id_bridge`（ES-E1 USB 身份）两套方案。后者仍使用 CDC/O1，详见
+[UNO R4 Minima ES-E1 USB 身份实验](docs/es-e1-usb-identity-test.zh-CN.md)。
+
 最终 USB-UART 桥接固件是：
 
 ```text
