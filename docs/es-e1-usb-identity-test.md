@@ -145,3 +145,9 @@ The camera's initial `F4` is effectively a one-shot event. If the Minima is
 reset while the camera already shows its PC icon, that event can be lost. For a
 fresh hardware session, start or reset the Minima first, then make the camera
 leave and re-enter PC mode before opening the host program.
+
+After completing the compatibility tests, the same Minima was restored through
+its DFU bootloader to the stable `ra4_camera_bridge` image. Windows enumerated
+it again as an Arduino UNO R4 Minima on `COM5`, and an open1V O1 ping returned
+firmware marker `RA4`. This confirms recovery from the `04A9:3040` test identity
+without changing the installed Arduino core.

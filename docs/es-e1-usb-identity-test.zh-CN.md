@@ -78,6 +78,11 @@ Bulk OUT 块再刷新 Bulk IN，避免 RA4 USB 栈中提前的批量传输与最
 复位，该事件可能丢失。开始新硬件会话时应先启动或复位 Minima，再让相机
 退出并重新进入 PC 模式，最后启动上位机程序。
 
+兼容测试完成后，同一块 Minima 已通过 DFU 刷回稳定的
+`ra4_camera_bridge`。Windows 再次将其枚举为 `COM5` 上的 Arduino UNO R4
+Minima，open1V O1 ping 返回固件标记 `RA4`。这验证了无需改动已安装
+Arduino 核心即可从 `04A9:3040` 实验身份完整恢复。
+
 ## 2026-09-22 实机验证
 
 实验固件已刷入 UNO R4 Minima，Windows 成功枚举为
