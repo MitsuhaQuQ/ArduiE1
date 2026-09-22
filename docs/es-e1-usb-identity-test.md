@@ -1,13 +1,14 @@
 # UNO R4 Minima ES-E1 USB identity test
 
-This repository deliberately keeps two firmware paths:
+This repository deliberately keeps three firmware paths:
 
 | Path | USB identity | Host transport | Status |
 |---|---|---|---|
 | `ra4_camera_bridge` | Arduino UNO R4 (`2341:0069` on Minima) | CDC ACM carrying O1 frames | Stable and hardware verified |
-| `ra4_es_e1_id_bridge` | Canon ES-E1 test identity (`04A9:3040`) | CDC ACM carrying the same O1 frames | Experimental; descriptor and build verification only |
+| `ra4_es_e1_id_bridge` | Canon ES-E1 test identity (`04A9:3040`) | CDC ACM carrying the same O1 frames | Experimental; camera communication verified through open1V |
+| `ra4_es_e1_klsi_bridge` | Canon ES-E1 identity (`04A9:3040`) | Original 64-byte KLSI/MCCI-style vendor protocol | Experimental; compiles, hardware test pending |
 
-The experimental image changes only the USB identity and strings. It does not
+The `ra4_es_e1_id_bridge` image changes only the USB identity and strings. It does not
 implement the original ES-E1 KLSI/MCCI USB transport and therefore is not a
 drop-in replacement for the original `EOSmdm` driver. The current open1V host
 software can use it as a COM device because its serial payload remains O1.
@@ -71,3 +72,34 @@ This validates the experimental identity with the current O1 bridge over both
 USB enumeration and an actual EOS-1V session. It still does not establish
 compatibility with the original ES-E1 KLSI/MCCI transport or unmodified Canon
 software.
+
+## Original-transport experimental image
+
+`ra4_es_e1_klsi_bridge` implements the USB behavior recovered from original
+ES-E1 captures and the host backend:
+
+- one vendor-class interface with bulk OUT `0x02` and bulk IN `0x81`;
+- fixed 64-byte blocks containing a two-byte little-endian payload length and
+  at most 62 payload bytes;
+- host-to-device vendor request `1`, value `0`, carrying the five-byte serial
+  configuration;
+- vendor request `3`, value `3` to enable the read channel and value `2` to
+  disable it;
+- asynchronous forwarding between USB blocks and the validated 9600 8N1
+  EOS-1V camera-side circuit.
+
+Build it with:
+
+```powershell
+.\tools\build-es-e1-klsi-test.ps1
+```
+
+The script temporarily changes the installed Minima core to emit the recovered
+USB 1.00 vendor descriptors (`bcdDevice 1.03`, endpoint-zero size 8), then
+restores every modified core file in `finally`. This image has no CDC COM port;
+returning to stable firmware requires entering the Minima DFU bootloader by
+pressing RESET twice.
+
+The build passes with Arduino Renesas core 1.6.0. Enumeration, control requests,
+bulk framing, and an end-to-end original-application session still require
+hardware validation.

@@ -6,6 +6,9 @@
 `ra4_es_e1_id_bridge`（ES-E1 USB 身份）两套方案。后者仍使用 CDC/O1，详见
 [UNO R4 Minima ES-E1 USB 身份实验](docs/es-e1-usb-identity-test.zh-CN.md)。
 
+新增的 `ra4_es_e1_klsi_bridge` 面向未经修改原版软件的传输实验；它与
+稳定的 CDC/O1 桥接并列，不取代后者。
+
 UNO R4 Minima 是当前推荐的开发板。UNO R4 WiFi 仍可用于已验证的 CDC/O1
 桥接，但不推荐用于模拟原版 ES-E1 的 USB 身份或传输，因为它的 USB-C
 由板载 ESP32-S3 中介。ESP32-S3 固件不再是本项目的开发目标。

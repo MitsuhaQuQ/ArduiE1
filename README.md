@@ -92,6 +92,7 @@ Open the serial monitor at 115200 baud after upload. Put the camera into PC mode
 firmware/eos1v_winusb_bridge/  USB-to-camera bridge firmware
   ra4_camera_bridge/            Final USB-CDC/UART camera bridge sketch
   ra4_es_e1_id_bridge/          Experimental Minima ES-E1-ID CDC build
+  ra4_es_e1_klsi_bridge/        Experimental original-transport Minima build
 tests/hardware/eos1v_interface/  Archived diagnostic firmware
 experiments/               Earlier electrical and UART probe sketches
 tools/                     Capture and offline UART decoding tools

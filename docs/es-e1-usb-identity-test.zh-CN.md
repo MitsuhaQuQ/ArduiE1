@@ -1,13 +1,14 @@
 # UNO R4 Minima ES-E1 USB 身份实验
 
-项目同时保留两套固件：
+项目同时保留三套固件：
 
 | 路径 | USB 身份 | 上位机传输 | 状态 |
 |---|---|---|---|
 | `ra4_camera_bridge` | Minima 原生 Arduino `2341:0069` | CDC COM 上的 O1 帧 | 稳定，已通过实机验证 |
-| `ra4_es_e1_id_bridge` | ES-E1 实验身份 `04A9:3040` | 相同的 CDC COM/O1 帧 | 实验性，仅完成描述符与构建验证 |
+| `ra4_es_e1_id_bridge` | ES-E1 实验身份 `04A9:3040` | 相同的 CDC COM/O1 帧 | 实验性，open1V 实机通信已验证 |
+| `ra4_es_e1_klsi_bridge` | ES-E1 身份 `04A9:3040` | 原版 64 字节 KLSI/MCCI 风格传输 | 实验性，已编译，待实机验证 |
 
-实验固件目前只改变 USB VID/PID 和显示字符串。它没有实现原厂 ES-E1
+`ra4_es_e1_id_bridge` 只改变 USB VID/PID 和显示字符串。它没有实现原厂 ES-E1
 的 KLSI/MCCI USB 传输，因此不能直接替代旧版 `EOSmdm` 驱动。open1V
 仍可把它作为普通 COM 设备使用，因为串口载荷继续采用 O1 桥协议。
 
@@ -35,8 +36,21 @@
 实机测试应依次确认 Windows 枚举与 COM 口、open1V O1 ping、只读相机
 命令、最终 `F2` 退出和 PC 图标清除，以及稳定固件的身份恢复。
 
-兼容未经修改的原厂软件属于下一阶段，还需要模拟原设备的描述符、端点、
-控制传输和 64 字节 KLSI/MCCI 封装。
+兼容未经修改原厂软件的下一阶段固件现已加入
+`ra4_es_e1_klsi_bridge`。它提供单个厂商接口、批量端点 `OUT 0x02` /
+`IN 0x81`、两字节小端长度加最多 62 字节负载的固定 64 字节块，以及
+抓包确认的厂商请求 1 和 3。相机侧仍使用已验证的 9600 8N1 双驱动电路。
+
+使用以下命令构建：
+
+```powershell
+.\tools\build-es-e1-klsi-test.ps1
+```
+
+脚本只在编译期间临时生成原设备风格的 USB 1.00 描述符，并在 `finally`
+中还原全部 Arduino 核心文件。此固件没有 CDC COM 口；刷回稳定版时需要
+双击 Minima 的 RESET 进入 DFU。当前已经通过 Renesas core 1.6.0 编译，
+枚举、控制请求、批量传输和原版软件完整会话仍须实机验证。
 
 ## 2026-09-22 实机验证
 
