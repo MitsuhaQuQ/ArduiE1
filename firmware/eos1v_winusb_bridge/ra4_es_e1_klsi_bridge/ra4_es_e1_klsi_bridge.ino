@@ -30,8 +30,10 @@ uint8_t cameraRx[kUsbPayloadSize];
 size_t cameraRxUsed = 0;
 uint32_t lastCameraByteUs = 0;
 bool readChannelEnabled = false;
+bool hostBulkStarted = false;
 bool highAssistActive = false;
 bool cycleCounterStarted = false;
+volatile bool sessionCleanupRequested = false;
 
 // The five bytes observed in original ES-E1 request 1 traffic.
 volatile uint8_t serialConfig[5] = {5, 6, 8, 0, 0};
@@ -103,6 +105,7 @@ void sendCameraByte(uint8_t value) {
 void processUsbBlock(const uint8_t* block) {
   const uint16_t length = readLe16(block);
   if (length > kUsbPayloadSize) return;
+  hostBulkStarted = true;
   for (uint16_t i = 0; i < length; ++i) sendCameraByte(block[2 + i]);
 }
 
@@ -118,7 +121,8 @@ void pollUsbOut() {
 }
 
 void sendCameraBlock() {
-  if (!readChannelEnabled || cameraRxUsed == 0 || !tud_vendor_mounted()) return;
+  if (!readChannelEnabled || !hostBulkStarted || cameraRxUsed == 0 ||
+      !tud_vendor_mounted()) return;
   if (tud_vendor_write_available() < kUsbBlockSize) return;
 
   uint8_t block[kUsbBlockSize] = {};
@@ -173,7 +177,8 @@ extern "C" bool tud_vendor_control_xfer_cb(
       }
     } else if (request->bRequest == 3) {
       readChannelEnabled = request->wValue == 3;
-      if (!readChannelEnabled) cameraRxUsed = 0;
+      if (readChannelEnabled) hostBulkStarted = false;
+      else sessionCleanupRequested = true;
     }
   }
   return true;
@@ -188,6 +193,15 @@ void setup() {
 }
 
 void loop() {
+  if (sessionCleanupRequested) {
+    sessionCleanupRequested = false;
+    highAssistActive = false;
+    releaseLine();
+    usbOutUsed = 0;
+    cameraRxUsed = 0;
+    hostBulkStarted = false;
+    while (Serial1.available()) Serial1.read();
+  }
   pollUsbOut();
   pollCameraIn();
 }

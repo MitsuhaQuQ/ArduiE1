@@ -123,4 +123,25 @@ request 3, value 2     -> OK
 The first enumeration attempt used the original cable's 8-byte EP0 and failed
 at the configuration descriptor. Keeping the RA4 core's 64-byte EP0 resolved
 it. The original vendor requests and bulk framing are otherwise preserved.
-The next validation layer is a full session through the patched Canon program.
+The patched Canon program also completed a sustained session through this path.
+Its startup `FF/F4/F6/F1` sequence and all four C.Fn blocks (`D5`, `D7`, `D9`,
+`D1`) were read on one open handle. Normal Remote shutdown completed the
+observed two-stage exit without reopening USB:
+
+```text
+F2 -> F4 -> echo F4 -> F2 -> F2
+```
+
+Request `3`, value `2` is also treated as a physical session boundary: the
+firmware disables both camera-line drivers and discards incomplete USB/camera
+input. This permits a new application connection after a probe or a clean exit.
+
+Camera bytes may arrive immediately after the read channel is enabled. They are
+buffered until the host sends its first bulk OUT block, preventing an early
+bulk-IN flush from contending with the final endpoint-zero configuration request
+on the RA4 USB stack.
+
+The camera's initial `F4` is effectively a one-shot event. If the Minima is
+reset while the camera already shows its PC icon, that event can be lost. For a
+fresh hardware session, start or reset the Minima first, then make the camera
+leave and re-enter PC mode before opening the host program.
