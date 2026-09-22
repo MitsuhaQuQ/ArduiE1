@@ -387,19 +387,15 @@ static BYTE baud_code(DWORD baud){if(baud==19200)return 4;if(baud==9600)return 6
 static BOOL bridge_open(void){
     int preference=configured_backend();char arduino_port[16];BOOL arduino_present=FALSE;HANDLE eos_probe=INVALID_HANDLE_VALUE;
     g_backend=BACKEND_NONE;g_pending_size=0;InterlockedExchange(&g_exit_sent,0);
-    /* Auto must never silently select one of two physical devices connected to
-       the same N3 camera. The two line drivers would contend electrically even
-       though only one COM/USB backend is selected by the process. Explicit
-       Backend=Arduino or Backend=ES-E1 remains deterministic. */
-    if(preference==BACKEND_NONE||preference==BACKEND_ARDUINO){
+    /* Arduino is the preferred compatibility backend. The original ES-E1 may
+       remain enumerated on the host: open1V has verified that the Arduino
+       bridge can still operate in that setup. Explicit Backend=Arduino must
+       therefore not reject an otherwise usable Arduino port merely because an
+       ES-E1 USB device is also present. */
+    if(preference==BACKEND_NONE){
         arduino_present=arduino_port_name(arduino_port);
         eos_probe=open_eos_device();
-        if(preference==BACKEND_ARDUINO&&eos_probe!=INVALID_HANDLE_VALUE){
-            CloseHandle(eos_probe);SetLastError(ERROR_BUSY);log_line("BACKEND_CONFLICT",0,0,0,0,FALSE,ERROR_BUSY);return FALSE;
-        }
-        if(preference==BACKEND_NONE&&arduino_present&&eos_probe!=INVALID_HANDLE_VALUE){
-            CloseHandle(eos_probe);SetLastError(ERROR_BUSY);log_line("BACKEND_CONFLICT",0,0,0,0,FALSE,ERROR_BUSY);return FALSE;
-        }
+        if(arduino_present&&eos_probe!=INVALID_HANDLE_VALUE)log_line("BACKEND_BOTH_PRESENT",0,0,0,0,TRUE,0);
         if(eos_probe!=INVALID_HANDLE_VALUE)CloseHandle(eos_probe);
     }
     if(preference!=BACKEND_ES_E1&&arduino_open()){g_backend=BACKEND_ARDUINO;g_comm=CreateEventA(0,FALSE,FALSE,0);if(g_comm){log_line("BACKEND",g_comm,(const BYTE*)"Arduino",7,0,TRUE,0);return TRUE;}CloseHandle(g_arduino);g_arduino=INVALID_HANDLE_VALUE;}

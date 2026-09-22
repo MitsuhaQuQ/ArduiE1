@@ -8,9 +8,9 @@ This source directory rebuilds every project-owned executable component in the c
 
 - **Arduino** finds an UNO R4 WiFi USB serial port with hardware ID `VID_2341&PID_1002` and sends the repository's framed `O1` exchange protocol at 115200 baud.
 - **ES-E1** uses the established WinUSB/KLSI backend for the original Canon cable (`VID_04A9&PID_3040`).
-- **Auto** selects the only detected backend. If both Arduino and ES-E1 are
-  present, it refuses an ambiguous open instead of allowing two physical
-  controllers to contend on the camera's N3 lines.
+- **Auto** tries Arduino first and falls back to ES-E1 if the Arduino is absent
+  or cannot be opened. The Arduino bridge has been verified to operate while
+  the ES-E1 is also enumerated on the host.
 
 Auto is the default. To make the choice deterministic when both devices are connected, create `EOSBRIDGE.INI` beside `EOSHOOKX.dll`:
 
@@ -21,7 +21,7 @@ Backend=Arduino
 
 Use `Backend=ES-E1` to force the original cable, or `Backend=Auto` to restore automatic selection. No UMDF replacement is installed and neither device's system driver is changed.
 
-When both devices are plugged in, select exactly one explicitly:
+When both devices are plugged in, select the intended backend explicitly:
 
 ```ini
 [Bridge]
@@ -35,16 +35,12 @@ or:
 Backend=ES-E1
 ```
 
-The other cable should also be disconnected from the camera while testing. The
-setting is read beside `EOSHOOKX.dll`, so it applies to the patched Canon
-process without changing the machine-wide COM or USB configuration.
-
-`Backend=Arduino` also refuses to open when an ES-E1 device is detected. The
-ES-E1 may still appear to work because its driver owns the N3 session first,
-while the Arduino controller then fails at the electrical/protocol boundary.
-This is intentional: both controllers must not be attached to the same camera
-N3 connector at once. Disconnect the ES-E1 cable from the camera before using
-the Arduino backend.
+The setting is read beside `EOSHOOKX.dll`, so it applies to the patched Canon
+process without changing the machine-wide COM or USB configuration. The
+Arduino bridge and the ES-E1 have separate host transports; the bridge keeps
+the selected backend for the whole Remote session and logs when both devices
+are present. If both N3 cables are physically attached to one camera, avoid
+simultaneous active drivers unless the specific wiring setup has been verified.
 
 The Canon driver issues a write and a later read, while an `O1` exchange carries the outgoing bytes and expected reply length together. For the Arduino backend, `EOSHOOKX.dll` therefore holds the latest write until the corresponding read. A following write flushes the older pending write as a zero-reply exchange. This preserves delays inserted by the original program between commands without hard-coding individual camera commands.
 
