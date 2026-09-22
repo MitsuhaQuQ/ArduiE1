@@ -51,3 +51,23 @@ RESET button twice to enter its Arduino DFU bootloader, then upload the stable
 Compatibility with unmodified Canon software is a separate phase. It requires
 matching the original descriptors, endpoints, control transfers, and 64-byte
 KLSI/MCCI framing rather than CDC ACM.
+
+## Validation result (2026-09-22)
+
+The experimental image was flashed to an UNO R4 Minima and enumerated as:
+
+- hardware ID `USB\VID_04A9&PID_3040`;
+- product `Canon EOS USB Cable (CDC test)`;
+- unique RA4 serial number preserved.
+
+Windows reused the existing Zadig whole-device WinUSB binding for the real
+ES-E1 hardware ID, so it did not create a COM port. open1V was extended to
+open that interface explicitly, initialize the CDC control interface, select
+the associated CDC data interface, and drain stale input between processes.
+O1 ping succeeded and a complete read-only camera identity session returned
+`type=1 id=64 status=0x34`.
+
+This validates the experimental identity with the current O1 bridge over both
+USB enumeration and an actual EOS-1V session. It still does not establish
+compatibility with the original ES-E1 KLSI/MCCI transport or unmodified Canon
+software.

@@ -37,3 +37,18 @@
 
 兼容未经修改的原厂软件属于下一阶段，还需要模拟原设备的描述符、端点、
 控制传输和 64 字节 KLSI/MCCI 封装。
+
+## 2026-09-22 实机验证
+
+实验固件已刷入 UNO R4 Minima，Windows 成功枚举为
+`USB\VID_04A9&PID_3040`，产品名为 `Canon EOS USB Cable (CDC test)`，
+并保留 RA4 的唯一序列号。
+
+Windows 对该硬件 ID 沿用了之前由 Zadig 安装的整设备 WinUSB 驱动，
+因此没有生成 COM 口。open1V 现已能显式打开该接口，初始化 CDC
+控制接口、选择关联的 CDC 数据接口，并在进程重开时清理残留输入。
+
+O1 ping 已通过，完整的只读相机身份会话返回
+`type=1 id=64 status=0x34`。这证明当前的“原厂 USB 身份 + O1 桥接”
+方案可完成真实 EOS-1V 通信，但尚不代表已兼容原厂 KLSI/MCCI
+传输或未修改的 Canon 软件。
