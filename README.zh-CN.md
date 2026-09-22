@@ -17,7 +17,24 @@ arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi tests/hardware/eos1v_in
 
 使用前必须阅读 [接线说明](docs/wiring.zh-CN.md)。每次实际通信前都要确认相机已经进入 PC 模式；成功发送 `F2` 退出后，相机会回到普通测光状态，下一次独立操作前必须重新进入 PC 模式。
 
+## Canon 三针快门线定义
+
+Canon N3 快门线的三条线路按电气功能定义如下：
+
+| Canon 线路 | 普通快门线功能 | EOS-1V PC 模式功能 |
+|---|---|---|
+| `COMMON` | 快门线公共端/参考端 | 信号参考地和回路返回 |
+| `FOCUS` | 半按、合焦触点 | 双向串行 `DATA-A` |
+| `SHUTTER` | 全按、快门触点 | 双向串行 `DATA-B` |
+
+普通快门操作时，将 `FOCUS` 与 `COMMON` 接通相当于半按；将 `SHUTTER`
+与 `COMMON` 接通相当于全按。这里给出的是已经确认的电气功能，不保证
+所有线缆的线色或插头编号顺序。不同视角下插头图也容易左右反转，接线前
+应使用万用表通断档从插头触点确认三条导线，不能只按插头正面示意图判断。
+
 已验证的通信行为、会话规则、错误恢复和命令边界汇总在 [EOS-1V 通信行为手册](docs/communication-manual.zh-CN.md)。
+
+原版 Canon 软件通过 UNO R4 运行的实机结果、双后端选择及 Remote 常驻会话模型记录在 [Windows 原版软件兼容验证](docs/windows-canon-compat-validation.md)。
 
 > **ESP32-S3 状态：** `firmware/eos1v_winusb_bridge/esp32s3_winusb_bridge`
 > 当前是不可用的实验草案。编译成功不代表能在 UNO R4 WiFi 上工作或可以安全刷写，请勿刷入开发板。

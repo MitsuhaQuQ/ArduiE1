@@ -28,6 +28,25 @@ Target board: **Arduino UNO R4 WiFi**.
 
 The tested interface uses two isolated transmit paths because the camera-side pull-up can disappear during a long low pulse:
 
+### Canon N3 shutter-cable lines
+
+The Canon side is a three-line N3 remote connection. The verified electrical
+definitions are:
+
+| Canon line | Function in normal shutter use | Function in EOS-1V PC mode |
+|---|---|---|
+| `COMMON` | Remote reference/common | Signal reference and return |
+| `FOCUS` | Half-press / focus contact | Bidirectional `DATA-A` serial line |
+| `SHUTTER` | Full-press / shutter contact | Bidirectional `DATA-B` serial line |
+
+In a normal passive shutter cable, `FOCUS` is the contact that is shorted to
+`COMMON` for the half-press and `SHUTTER` is the full-press contact. This table
+describes electrical functions, not a guaranteed numbered-pin or wire-colour
+order: Canon cable assemblies can present the connector from different sides.
+Identify the three conductors by continuity to the plug contacts before
+connecting the UNO. Do not connect a numbered pin based only on a drawing of
+the plug face.
+
 ```text
 LOW path
 UNO D4 -- 10k -- NPN base
@@ -67,7 +86,10 @@ tests/hardware/eos1v_interface/  Archived diagnostic firmware
 experiments/               Earlier electrical and UART probe sketches
 tools/                     Capture and offline UART decoding tools
 docs/                      Wiring, protocol, and validation notes
+windows-compat/            Original Canon software compatibility bridge
 ```
+
+`windows-compat/` builds the clean-room `EOSHOOKX.dll` and local patcher. The DLL can use either this repository's UNO R4 bridge or the original ES-E1 cable; see [the transport-selection and build notes](windows-compat/SOURCE_PROJECT.md).
 
 The sketches under `experiments/` document the development path. They are not the recommended camera interface.
 
@@ -89,6 +111,7 @@ Always keep an independent backup of film records before testing write or delete
 ## Documentation
 
 - [Consolidated communication behavior manual (Chinese)](docs/communication-manual.zh-CN.md)
+- [Original Canon application compatibility validation](docs/windows-canon-compat-validation.md)
 - [Wiring](docs/wiring.zh-CN.md)
 - [Hardware validation](docs/hardware-validation.zh-CN.md)
 - [Active interface validation](docs/active-interface-validation.zh-CN.md)
