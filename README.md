@@ -110,13 +110,16 @@ Always keep an independent backup of film records before testing write or delete
 
 ## Documentation
 
-- [Consolidated communication behavior manual (Chinese)](docs/communication-manual.zh-CN.md)
+- [Communication behavior manual](docs/communication-manual.md)
 - [Original Canon application compatibility validation](docs/windows-canon-compat-validation.md)
-- [Wiring](docs/wiring.zh-CN.md)
-- [Hardware validation](docs/hardware-validation.zh-CN.md)
-- [Active interface validation](docs/active-interface-validation.zh-CN.md)
-- [Protocol validation](docs/protocol-validation.zh-CN.md)
+- [Wiring](docs/wiring.md)
+- [Hardware validation](docs/hardware-validation.md)
+- [Active interface validation](docs/active-interface-validation.md)
+- [Protocol validation](docs/protocol-validation.md)
 - [Console command reference](docs/command-reference.md)
+
+Chinese translations and detailed research notes remain available as additional
+files, including `README.zh-CN.md` and the `*-zh-CN.md` documents.
 
 ## Legal note
 
