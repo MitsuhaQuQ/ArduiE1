@@ -1,7 +1,7 @@
 # EOS-1V Communication Behavior Manual
 
-Status date: 2026-09-21  
-Validated with: Canon EOS-1V, Arduino UNO R4 WiFi, Canon N3 connector
+Status date: 2026-09-23
+Validated with: Canon EOS-1V, Arduino UNO R4 WiFi and Minima, Canon N3 connector
 
 This document records behavior observed on a real camera. “Validated” means the
 camera completed the operation. Offline parser and build checks are identified
@@ -35,6 +35,10 @@ RX:   SHUTTER/DATA-B --5.1k-- D0 / Serial1 RX
 
 D1/TX and D2 are disconnected in the final active circuit. D4 and D5 are
 released on startup, error, timeout, and exit.
+
+The stable bridge is a binary O1 transport. Session and camera commands in the
+sections below are issued by the host application through `EXCHANGE`; they are
+not single-character commands accepted by the bridge serial port.
 
 ## Frames and checks
 
@@ -116,4 +120,3 @@ Bulb combinations, over-capacity masks, and E7/mask width mismatches.
 The semantics of auxiliary `A1` bytes, D1 trailing bytes, reserved P.Fn bits,
 some E4 flags, and the physical erase scope of `E2` remain unresolved. Keep
 these bytes intact and expose them as raw data rather than inventing meanings.
-

@@ -58,10 +58,15 @@ Successful response payload:
 | Offset | Size | Field |
 | ---: | ---: | --- |
 | 0 | 1 | Status (`00`) |
-| 1 | 1 | DATA-A sense level (`00` low, `01` high) |
+| 1 | 1 | D2 diagnostic sense input (`00` low, `01` high) |
 | 2 | 1 | High-assist active (`00`/`01`) |
 | 3 | 4 | Completed exchange count |
 | 7 | 4 | Framing/CRC error count |
+
+D2 is deliberately disconnected in the final active wiring, so the diagnostic
+sense byte does not report DATA-A in the supported bridge circuit. It is kept
+for bench fixtures that explicitly connect D2. Host software must not use this
+field as camera-line state in the final wiring.
 
 ## `10` EXCHANGE
 
@@ -69,11 +74,15 @@ Request payload:
 
 | Offset | Size | Field |
 | ---: | ---: | --- |
-| 0 | 2 | Expected reply byte count, 0..512 |
+| 0 | 2 | Expected reply byte count, 0..509 |
 | 2 | 2 | Timeout for first byte in milliseconds, 1..5000 |
 | 4 | 2 | Timeout between later bytes in milliseconds, 1..5000 |
 | 6 | 2 | Transmit byte count, 0..64 |
 | 8 | M | Bytes to transmit to the camera |
+
+The receive limit is 509 because the response adds a three-byte status/count
+prefix and every O1 frame payload is limited to 512 bytes. Values above 509
+return status `05`.
 
 The RA4 sends transmit bytes in order with the proven adaptive line driver,
 then reads up to the exact expected count. It never retries or interprets

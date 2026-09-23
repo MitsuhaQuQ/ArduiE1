@@ -215,7 +215,8 @@ F2 -> F4
 F2 -> F2
 ```
 
-当前固件兼容两种形式。成功退出后相机会离开 PC 模式并回到测光/普通快门接口状态。
+旧诊断固件和当前 open1V 会话层都兼容两种形式。成功退出后相机会离开 PC
+模式并回到测光/普通快门接口状态。
 
 ## 9. PC 模式和操作约束
 
@@ -228,18 +229,19 @@ F2 -> F2
 
 ## 10. 当前固件与资料
 
-主动通信固件：
+当前可复现的主动通信固件：
 
 ```text
-analysis/uno_r4_eos_sniffer/dual_driver_uart_test/dual_driver_uart_test.ino
+firmware/eos1v_winusb_bridge/ra4_camera_bridge/ra4_camera_bridge.ino
 ```
 
-关键验证资料：
+早期验证笔记中的 `EOS端串行分析_20260920.md`、
+`EOS端硬件UART下载分析_20260920.md`、`EOS端双向UART验证_20260920.md` 和
+`EOS端主动驱动验证_20260921.md` 没有作为独立文件发布；其可复现结论已汇总到：
 
-- `EOS端串行分析_20260920.md`：首次边沿解码；
-- `EOS端硬件UART下载分析_20260920.md`：相机发送方向 1989/1989 验证；
-- `EOS端双向UART验证_20260920.md`：主机发送方向 79/79 验证；
-- `EOS端主动驱动验证_20260921.md`：主动双驱动和完整读取验证。
+- `docs/active-interface-validation.zh-CN.md`；
+- `docs/protocol-validation.zh-CN.md`；
+- `docs/communication-manual.zh-CN.md`。
 
 ## 11. 已完成范围与剩余硬件工作
 

@@ -41,9 +41,13 @@ USB upload discovery may stop after the test identity starts. Press the Minima
 RESET button twice to enter its Arduino DFU bootloader, then upload the stable
 `ra4_camera_bridge` sketch to restore the normal identity.
 
-## Required hardware validation
+## Hardware validation checklist
 
-1. Windows enumerates `VID_04A9&PID_3040` and creates a COM port.
+The following checklist was completed, with the driver-binding qualification
+recorded in the result below:
+
+1. Windows enumerates `VID_04A9&PID_3040` and exposes either CDC or the existing
+   whole-device WinUSB binding.
 2. open1V discovers the COM port and completes its O1 ping.
 3. A read-only camera command succeeds.
 4. The final `F2` clears the camera PC indicator.

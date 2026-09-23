@@ -60,7 +60,9 @@ F2 -> F2
 
 ## 固件
 
-`dual_driver_uart_test/dual_driver_uart_test.ino`
+本次验证使用的 `dual_driver_uart_test` 已整理并归档为
+`tests/hardware/eos1v_interface/eos1v_interface.ino`。当前产品桥接固件位于
+`firmware/eos1v_winusb_bridge/ra4_camera_bridge`。
 
 ## 设置与胶卷数据主动读取
 

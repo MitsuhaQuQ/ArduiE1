@@ -1,6 +1,13 @@
 # Serial console command reference
 
-Open the USB serial console at 115200 baud. Except for the offline safety self-test, camera commands require a fresh PC-mode session.
+This reference applies only to the archived diagnostic sketch at
+`tests/hardware/eos1v_interface/eos1v_interface.ino`. It does not describe the
+stable `ra4_camera_bridge`, which accepts binary O1 frames from open1V rather
+than single-character console commands.
+
+When intentionally running the archived diagnostic sketch, open its USB serial
+console at 115200 baud. Except for the offline safety self-test, camera commands
+require a fresh PC-mode session.
 
 ## Read-only commands
 
@@ -17,6 +24,11 @@ Open the USB serial console at 115200 baud. Except for the offline safety self-t
 | `e` | Read C.Fn, P.Fn, clock, and status in one session, then exit once |
 | `g` | Run shooting-mask safety checks offline; sends nothing to the camera |
 | `m` | Establish a session and open a 20-second power-loss test window |
+| `q` | Run the shorter already-established-session diagnostic |
+| `t` | Exercise the DATA-A high-assist path; bench-only and requires DATA-A connected through 5.1 kΩ to D2 |
+
+The `t` wiring is temporary diagnostic wiring. Disconnect D2 again before
+using the supported active bridge circuit.
 
 ## State-changing validation commands
 

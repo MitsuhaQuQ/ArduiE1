@@ -1,58 +1,62 @@
-# EOS-1V UNO R4 Serial Interface
+# ArduiE1 — EOS-1V UNO R4 camera interface
 
-An open, independently implemented Arduino UNO R4 interface for the Canon EOS-1V service/data channel exposed through the N3 three-pin remote connector.
+ArduiE1 is an independently implemented Arduino UNO R4 interface for the Canon
+EOS-1V service/data channel exposed through the N3 three-pin remote connector.
+It provides the camera-side hardware and bridge firmware used by the separate
+`open1V-cli` and `open1v-filmdb` host applications.
 
-The project currently provides a verified electrical interface, session handshake, settings reads, C.Fn/P.Fn reads and selected writes, clock read/write, shooting-data configuration, film-record download, and an explicitly armed delete operation. It does not contain Canon executables, drivers, firmware, manuals, or copied source code.
+The repository contains no Canon executables, drivers, firmware, manuals, or
+copied source code.
 
-## Status
+## Current firmware
 
-The hardware and protocol paths have been tested against a real EOS-1V:
+Three firmware paths are retained:
 
-- 9600 baud, 8-N-1, LSB-first serial transport
-- `FF/F4`, `F6`, and `F1` session establishment
-- single-stage `F2/F2` session exit
-- C.Fn and P.Fn reads
-- camera clock read and write
-- camera ID read and write
-- shooting-field mask read, validated write, and restore
-- variable-length `E3/E4` film-record download
-- continuous multi-action session followed by one final exit
-- explicit two-step film-data deletion
-- recovery after MCU/USB power loss
+| Firmware | Board | USB transport | Status |
+|---|---|---|---|
+| `ra4_camera_bridge` | UNO R4 Minima or WiFi | Arduino CDC carrying O1 frames | Stable; camera hardware verified |
+| `ra4_es_e1_id_bridge` | UNO R4 Minima only | Experimental `04A9:3040` CDC identity carrying O1 frames | Experimental; open1V camera session verified |
+| `ra4_es_e1_klsi_bridge` | UNO R4 Minima only | Experimental KLSI/MCCI-style vendor transport | Experimental; transport and patched Remote session verified |
 
-The main firmware remains a protocol research console. Commands that write camera state are included for reproducibility and are guarded by exact baseline checks where practical.
+The stable `ra4_camera_bridge` is the recommended firmware. It is a bounded O1
+transport bridge, not an interactive protocol console: the host application
+owns the EOS-1V session, read, write, and delete logic. The bridge accepts
+`PING`, `GET_STATUS`, `EXCHANGE`, and `RELEASE` frames at 115200 baud and
+forwards camera bytes at 9600 baud without interpreting or retrying them.
+
+The historical command-driven research firmware remains under
+`tests/hardware/eos1v_interface`. Its single-character console commands,
+including the guarded `Z` then `!` delete sequence, do not apply to the stable
+bridge.
+
+## Verified scope
+
+The electrical interface and host/bridge stack have completed these operations
+on a real EOS-1V:
+
+- 9600 baud, 8-N-1, LSB-first, non-inverted camera transport;
+- `FF/F4/F6/F1` session establishment and both observed `F2` exit forms;
+- C.Fn and P.Fn reads and selected verified writes;
+- camera ID and clock reads, writes, and read-back verification;
+- shooting-field mask reads, controlled writes, and restoration;
+- variable-length `E3/E4` film-record download;
+- continuous multi-action sessions with one final exit;
+- explicit delete-all with post-operation verification;
+- recovery after MCU/USB power loss;
+- stable CDC/O1 operation on UNO R4 WiFi and Minima;
+- experimental ES-E1 identity and KLSI/MCCI-style transport on Minima.
+
+Protocol operations are implemented by the host applications. This list does
+not mean the stable bridge exposes matching serial-console commands.
 
 ## Hardware
 
-The recommended board is **Arduino UNO R4 Minima**. **UNO R4 WiFi** remains
-supported for the stable CDC/O1 bridge, but is not recommended for original
-ES-E1 device-identity or USB-transport emulation because USB-C is mediated by
-its on-board ESP32-S3. ESP32-S3 firmware is outside this project's scope.
+UNO R4 Minima is recommended. UNO R4 WiFi is supported for the stable CDC/O1
+bridge, but its USB-C port is mediated by the on-board ESP32-S3, so USB identity
+and original-transport experiments target Minima only.
 
-The same RA4 camera-bridge sketch is used on both boards. Select the matching
-Arduino CLI FQBN when compiling: `arduino:renesas_uno:unor4wifi` or
-`arduino:renesas_uno:minima`.
-
-The tested interface uses two isolated transmit paths because the camera-side pull-up can disappear during a long low pulse:
-
-### Canon N3 shutter-cable lines
-
-The Canon side is a three-line N3 remote connection. The verified electrical
-definitions are:
-
-| Canon line | Function in normal shutter use | Function in EOS-1V PC mode |
-|---|---|---|
-| `COMMON` | Remote reference/common | Signal reference and return |
-| `FOCUS` | Half-press / focus contact | Bidirectional `DATA-A` serial line |
-| `SHUTTER` | Full-press / shutter contact | Bidirectional `DATA-B` serial line |
-
-In a normal passive shutter cable, `FOCUS` is the contact that is shorted to
-`COMMON` for the half-press and `SHUTTER` is the full-press contact. This table
-describes electrical functions, not a guaranteed numbered-pin or wire-colour
-order: Canon cable assemblies can present the connector from different sides.
-Identify the three conductors by continuity to the plug contacts before
-connecting the UNO. Do not connect a numbered pin based only on a drawing of
-the plug face.
+The verified active circuit uses two isolated DATA-A transmit paths because the
+camera-side pull-up can disappear during a long low pulse:
 
 ```text
 LOW path
@@ -72,63 +76,75 @@ Ground
 EOS COMMON -- UNO GND
 ```
 
-UNO D1/TX and D2 must remain disconnected. See [the complete wiring notes](docs/wiring.zh-CN.md) before connecting a camera.
+UNO D1/TX and D2 remain disconnected in the final active circuit. Read the
+[complete wiring notes](docs/wiring.md) and identify N3 conductors by continuity
+at the actual plug. Connector drawings and cable colors are not reliable.
 
-## Build
+| Canon line | Normal shutter function | EOS-1V PC-mode function |
+|---|---|---|
+| `COMMON` | Remote common/reference | Signal reference and return |
+| `FOCUS` | Half-press/focus contact | Bidirectional `DATA-A` |
+| `SHUTTER` | Full-press/shutter contact | Bidirectional `DATA-B` |
 
-Install the Arduino Renesas core, then compile:
+## Build the stable bridge
 
-```powershell
+Install Arduino CLI and the Renesas UNO core, then compile for the selected
+board:
+
+```sh
 arduino-cli core install arduino:renesas_uno
+arduino-cli compile --fqbn arduino:renesas_uno:minima firmware/eos1v_winusb_bridge/ra4_camera_bridge
 arduino-cli compile --fqbn arduino:renesas_uno:unor4wifi firmware/eos1v_winusb_bridge/ra4_camera_bridge
-# For UNO R4 Minima, use: arduino:renesas_uno:minima
 ```
 
-Open the serial monitor at 115200 baud after upload. Put the camera into PC mode before starting a protocol command. A successful `F2` exit deliberately returns the camera to normal metering mode, so PC mode must be re-entered before the next independent command.
+Upload the matching image, connect the verified circuit, put the camera into PC
+mode, then use `open1V-cli` or `open1v-filmdb`. A serial monitor is not a user
+interface for the stable bridge; arbitrary text is ignored until an O1 frame is
+recognized. Host applications may auto-detect the board or accept an explicit
+serial device such as `COM3`, `/dev/cu.usbmodem...`, or `/dev/ttyACM0`.
+
+The experimental Minima images require the PowerShell build scripts documented
+in [the ES-E1 USB experiment guide](docs/es-e1-usb-identity-test.md). Those
+scripts temporarily patch Arduino core files and restore them afterward.
+
+## Safety
+
+- Both camera drivers idle released.
+- Stable bridge communication begins only after a valid O1 `EXCHANGE` request.
+- The bridge limits host payload, camera transmit, expected reply, and timeout.
+- `RELEASE` disables both drivers and drains pending camera input.
+- A 30-second host-idle timeout releases an active high-assist state.
+- The bridge never retries camera commands; write/delete retry policy belongs to
+  the host application.
+- Disconnect DATA-A and DATA-B before changing firmware.
+- Back up film records before testing any write or delete operation.
 
 ## Repository layout
 
 ```text
-firmware/eos1v_winusb_bridge/  USB-to-camera bridge firmware
-  ra4_camera_bridge/            Final USB-CDC/UART camera bridge sketch
-  ra4_es_e1_id_bridge/          Experimental Minima ES-E1-ID CDC build
-  ra4_es_e1_klsi_bridge/        Experimental original-transport Minima build
-tests/hardware/eos1v_interface/  Archived diagnostic firmware
-experiments/               Earlier electrical and UART probe sketches
-tools/                     Capture and offline UART decoding tools
-docs/                      Wiring, protocol, and validation notes
+firmware/eos1v_winusb_bridge/   Stable and experimental bridge firmware
+tests/hardware/eos1v_interface/ Archived command-driven diagnostic firmware
+experiments/                    Earlier electrical and UART probes
+tools/                          Build, capture, and decoding tools
+docs/                           Wiring, protocol, and validation records
 ```
-
-The sketches under `experiments/` document the development path. They are not the recommended camera interface.
-
-## Safety model
-
-- Both output drivers idle disabled.
-- Communication starts only after an explicit serial-console command.
-- The firmware does not repeatedly probe the normal shutter connector.
-- Write tests check known baseline values before changing state.
-- Restore operations require a fresh PC-mode session.
-- Film-data deletion requires uppercase `Z`, followed by `!` within ten seconds.
-
-Always keep an independent backup of film records before testing write or delete commands.
 
 ## Documentation
 
-- [Communication behavior manual](docs/communication-manual.md)
-- [UNO R4 Minima ES-E1 USB identity test](docs/es-e1-usb-identity-test.md)
+- [Bridge firmware and build matrix](firmware/eos1v_winusb_bridge/README.md)
+- [O1 bridge protocol](firmware/eos1v_winusb_bridge/protocol.md)
 - [Wiring](docs/wiring.md)
+- [Communication behavior manual](docs/communication-manual.md)
 - [Hardware validation](docs/hardware-validation.md)
 - [Active interface validation](docs/active-interface-validation.md)
 - [Protocol validation](docs/protocol-validation.md)
-- [Console command reference](docs/command-reference.md)
+- [ES-E1 USB identity and transport experiments](docs/es-e1-usb-identity-test.md)
+- [Archived diagnostic console commands](docs/command-reference.md)
 
-Chinese translations and detailed research notes remain available as additional
-files, including `README.zh-CN.md` and the `*-zh-CN.md` documents.
+Chinese translations and detailed research notes are retained alongside the
+English documents.
 
-## Legal note
+## Legal and license
 
-This is an independent interoperability and preservation project. Canon and EOS are trademarks of Canon Inc. No Canon software or copyrighted binary is distributed here.
-
-## License
-
-Source code and original documentation in this repository are available under the MIT License. See [LICENSE](LICENSE).
+Canon and EOS are trademarks of Canon Inc. Source code and original
+documentation are available under the [MIT License](LICENSE).

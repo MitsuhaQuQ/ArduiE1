@@ -21,6 +21,7 @@ constexpr uint32_t kCyclesPerBit = kCpuHz / 9600UL;
 constexpr uint32_t kHostBaud = 115200;
 constexpr uint16_t kMaxPayload = 512;
 constexpr uint16_t kMaxCameraTx = 64;
+constexpr uint16_t kMaxCameraRx = kMaxPayload - 3;
 constexpr uint8_t kVersion = 1;
 constexpr uint32_t kDriverIdleReleaseMs = 30000;
 
@@ -247,7 +248,7 @@ void handleRequest(uint8_t type, uint16_t sequence,
   const uint16_t firstTimeout = readLe16(payload + 2);
   const uint16_t interByteTimeout = readLe16(payload + 4);
   const uint16_t transmitLength = readLe16(payload + 6);
-  if (expected > kMaxPayload || transmitLength > kMaxCameraTx ||
+  if (expected > kMaxCameraRx || transmitLength > kMaxCameraTx ||
       payloadLength != static_cast<uint16_t>(8 + transmitLength)) {
     respondStatus(type, sequence, kStatusLimitExceeded);
     return;
