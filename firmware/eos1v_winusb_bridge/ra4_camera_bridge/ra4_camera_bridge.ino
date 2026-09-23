@@ -24,6 +24,7 @@ constexpr uint8_t kTypePing = 0x01;
 constexpr uint8_t kTypeGetStatus = 0x02;
 constexpr uint8_t kTypeExchange = 0x10;
 constexpr uint8_t kTypeRelease = 0x11;
+constexpr uint8_t kTypeProfiledExchange = 0x12;
 constexpr uint8_t kResponseBit = 0x80;
 
 constexpr uint8_t kStatusOk = 0x00;
@@ -229,22 +230,44 @@ void handleRequest(uint8_t type, uint16_t sequence,
     return;
   }
 
-  if (type != kTypeExchange) {
+  if (type != kTypeExchange && type != kTypeProfiledExchange) {
     respondStatus(type, sequence, kStatusUnknownType);
     return;
   }
 
-  if (payloadLength < 8) {
+  const bool profiled = type == kTypeProfiledExchange;
+  if (payloadLength < (profiled ? 5 : 8)) {
     respondStatus(type, sequence, kStatusInvalidPayload);
     return;
   }
 
   const uint16_t expected = readLe16(payload);
-  const uint16_t firstTimeout = readLe16(payload + 2);
-  const uint16_t interByteTimeout = readLe16(payload + 4);
-  const uint16_t transmitLength = readLe16(payload + 6);
+  uint16_t firstTimeout = 0;
+  uint16_t interByteTimeout = 0;
+  uint16_t transmitLength = 0;
+  uint8_t transmitOffset = 0;
+  if (profiled) {
+    // Host code chooses only a transport class. The firmware owns the actual
+    // electrical receive windows, so board-specific tuning stays on the board.
+    switch (payload[2]) {
+      case 0: firstTimeout = 500; interByteTimeout = 50; break;
+      case 1: firstTimeout = 1000; interByteTimeout = 50; break;
+      case 2: firstTimeout = 1500; interByteTimeout = 50; break;
+      case 3: firstTimeout = 2000; interByteTimeout = 50; break;
+      default:
+        respondStatus(type, sequence, kStatusInvalidPayload);
+        return;
+    }
+    transmitLength = readLe16(payload + 3);
+    transmitOffset = 5;
+  } else {
+    firstTimeout = readLe16(payload + 2);
+    interByteTimeout = readLe16(payload + 4);
+    transmitLength = readLe16(payload + 6);
+    transmitOffset = 8;
+  }
   if (expected > kMaxCameraRx || transmitLength > kMaxCameraTx ||
-      payloadLength != static_cast<uint16_t>(8 + transmitLength)) {
+      payloadLength != static_cast<uint16_t>(transmitOffset + transmitLength)) {
     respondStatus(type, sequence, kStatusLimitExceeded);
     return;
   }
@@ -257,7 +280,8 @@ void handleRequest(uint8_t type, uint16_t sequence,
   ensureCameraHardware();
   drainCameraRx();
   if (!cycleCounterStarted) beginCycleCounter();
-  for (uint16_t i = 0; i < transmitLength; ++i) sendCameraByte(payload[8 + i]);
+  for (uint16_t i = 0; i < transmitLength; ++i)
+    sendCameraByte(payload[transmitOffset + i]);
   const size_t received = receiveCamera(response + 3, expected,
                                         firstTimeout, interByteTimeout);
   ++exchangeCount;

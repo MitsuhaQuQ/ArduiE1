@@ -49,6 +49,12 @@ on a real EOS-1V:
 Protocol operations are implemented by the host applications. This list does
 not mean the stable bridge exposes matching serial-console commands.
 
+The firmware owns all board-specific behavior: bit timing, D5 high-level
+assist, stale-RX draining, line release, and concrete receive windows. O1
+profiled exchange (`0x12`) lets the host choose a neutral transport class while
+keeping hardware timing on the Arduino. Legacy exchange (`0x10`) is retained
+for compatibility with existing host builds.
+
 ## Hardware
 
 UNO R4 Minima is recommended. UNO R4 WiFi is supported for the stable CDC/O1
